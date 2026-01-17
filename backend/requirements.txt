@@ -1,0 +1,17 @@
+Flask==3.0.0
+
+# Database & ORM
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.7
+
+# Driver koneksi ke PostgreSQL
+psycopg[binary]==3.2.13
+
+# Authentication & Security
+Flask-JWT-Extended==4.6.0
+
+# Frontend Communication
+Flask-Cors==4.0.0
+
+# Environment Configuration
+python-dotenv==1.0.1
