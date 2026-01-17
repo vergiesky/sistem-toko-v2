@@ -5,10 +5,16 @@ const NotaHeader = ({
   notaNumber,
   date,
   customerName = '',
+  selectedCustomer,
   mode = 'screen',
   customerAutocompleteProps,
 }) => {
   const isPrint = mode === 'print';
+  const companyName = selectedCustomer?.nama_perusahaan?.trim();
+  const customerAddress = selectedCustomer?.alamat?.trim();
+  const showCustomerDetails = Boolean(companyName || customerAddress);
+  const detailsClasses =
+    'mt-2 w-full rounded-lg border border-[#f0e1d4] bg-[#fff9f3] px-3 py-2 text-[11px] leading-relaxed text-[#7a6151] print-customer-details max-w-full whitespace-normal break-words';
 
   return (
     <div className="flex flex-wrap items-start justify-between gap-6 print-header">
@@ -21,16 +27,16 @@ const NotaHeader = ({
           />
           <div className="print-company-section -ml-3">
             <div className="text-center print-company-info">
-              <h3 className="text-xl font-semibold text-[#d24b1f] text-center">
+              <h3 className="text-xl font-semibold text-[#d24b1f] text-left">
                 SURYA GEMILANG
               </h3>
-              <p className="text-sm text-[#7a6151] text-center">
+              <p className="text-sm text-[#7a6151] text-left">
                 Toko alat listrik & elektronik
               </p>
-              <p className="text-sm text-[#7a6151] text-center">
+              <p className="text-sm text-[#7a6151] text-left">
                 Depan Pasar Limpung
               </p>
-              <p className="text-sm text-[#7a6151] text-center">
+              <p className="text-sm text-[#7a6151] text-left">
                 Jln. Diponegoro 51271
               </p>
             </div>
@@ -65,7 +71,7 @@ const NotaHeader = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 text-sm text-[#3d2d24] min-w-[240px] print-header-right">
+      <div className="flex w-full flex-col gap-2 text-sm text-[#3d2d24] min-w-[240px] max-w-[320px] print-header-right">
         <div className="flex items-center justify-between gap-3 print-date-section">
           <span className="font-semibold print-date-label">Tanggal</span>
           <span className="rounded-lg border border-[#f0e1d4] bg-[#fff9f3] px-3 py-1.5 print-date-value">
@@ -81,9 +87,37 @@ const NotaHeader = ({
               <span className="rounded-lg border border-[#f0e1d4] bg-[#fff9f3] px-3 py-1.5 text-sm text-[#3d2d24] print-customer-name">
                 {customerName}
               </span>
+              {showCustomerDetails && (
+                <div className={detailsClasses}>
+                  {companyName && (
+                    <div className="whitespace-normal break-words">
+                      {companyName}
+                    </div>
+                  )}
+                  {customerAddress && (
+                    <div className="whitespace-normal break-words">
+                      {customerAddress}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <CustomerAutocomplete {...customerAutocompleteProps} />
+          )}
+          {!isPrint && showCustomerDetails && (
+            <div className={detailsClasses}>
+              {companyName && (
+                <div className="whitespace-normal break-words">
+                  {companyName}
+                </div>
+              )}
+              {customerAddress && (
+                <div className="whitespace-normal break-words">
+                  {customerAddress}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

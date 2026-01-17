@@ -11,7 +11,7 @@ const useNotas = () => {
     setIsRefreshing(true);
     setErrorMessage('');
     try {
-      const response = await getNotas();
+      const response = await getNotas({ per_page: 0 });
       setNotas(response.data ?? []);
     } catch (error) {
       setErrorMessage(

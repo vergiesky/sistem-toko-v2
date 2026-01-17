@@ -5,6 +5,7 @@ const NotaReceiptPage = ({
   notaNumber,
   date,
   customerName,
+  selectedCustomer,
   rows,
   pageTotal,
   blankRows = 0,
@@ -24,6 +25,7 @@ const NotaReceiptPage = ({
           notaNumber={notaNumber}
           date={date}
           customerName={customerName}
+          selectedCustomer={selectedCustomer}
           mode="print"
         />
 
@@ -49,7 +51,10 @@ const NotaReceiptPage = ({
               const qty = Number(row.qty);
               const qtyLabel = qty ? qty : '';
               return (
-                <tr key={`${row.key ?? 'row'}-${index}`} className="border-t border-[#efe2d6] text-sm">
+                <tr
+                  key={`${row.key ?? 'row'}-${index}`}
+                  className="border-t border-[#efe2d6] text-sm"
+                >
                   <td className="border-r border-[#efe2d6] px-3 py-2 col-jumlah w-[90px]">
                     <span>{qtyLabel}</span>
                   </td>
@@ -66,7 +71,10 @@ const NotaReceiptPage = ({
               );
             })}
             {Array.from({ length: blankRows }).map((_, index) => (
-              <tr key={`blank-${index}`} className="border-t border-[#efe2d6] text-sm">
+              <tr
+                key={`blank-${index}`}
+                className="border-t border-[#efe2d6] text-sm"
+              >
                 <td className="border-r border-[#efe2d6] px-3 py-2">
                   &nbsp;
                 </td>
@@ -87,7 +95,6 @@ const NotaReceiptPage = ({
             <p className="print-tanda-terima">Tanda Terima,</p>
             <div className="rounded-xl border border-[#e6d6c7] bg-[#fff9f3] px-4 py-2 text-xs text-[#7a6151] print-warning">
               <strong>PERHATIAN!!!</strong>
-              <br />
               <br />
               Barang-barang yang telah dibeli
               <br />

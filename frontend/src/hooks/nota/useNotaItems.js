@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-const useNotaItems = () => {
-  const [items, setItems] = useState([]);
+const useNotaItems = (initialItems = []) => {
+  const [items, setItems] = useState(() => initialItems);
 
   const addItem = () => {
     setItems((prev) => [
@@ -31,6 +31,7 @@ const useNotaItems = () => {
     items,
     addItem,
     removeItem,
+    setItems,
     updateItem,
   };
 };

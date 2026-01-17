@@ -2,7 +2,7 @@ import formatDate from '../../lib/formatDate.js';
 import formatRupiah from '../../lib/formatRupiah.js';
 import splitIntoPages from '../../lib/splitIntoPages.js';
 
-const NotaHistoryCard = ({ nota, onPreview, onDelete, isDeleting }) => {
+const NotaHistoryCard = ({ nota, onPreview, onDelete, isDeleting, onPrint }) => {
   const details = nota.detail_notas || nota.detailNotas || [];
   const detailPages = splitIntoPages(details, 15);
 
@@ -43,6 +43,13 @@ const NotaHistoryCard = ({ nota, onPreview, onDelete, isDeleting }) => {
             className="inline-flex items-center gap-2 rounded-xl border border-[#f0e1d4] bg-white px-4 py-2 text-sm font-semibold text-[#3d2d24] shadow-sm transition hover:bg-[#fff9f3]"
           >
             Preview Nota
+          </button>
+          <button
+            type="button"
+            onClick={() => onPrint(nota)}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#f2780c] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-105"
+          >
+            Cetak Nota
           </button>
           <button
             type="button"

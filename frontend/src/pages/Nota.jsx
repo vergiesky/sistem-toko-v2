@@ -6,7 +6,6 @@ import NotaPrintPage from '../components/nota/NotaPrintPage.jsx';
 import formatDate from '../lib/formatDate.js';
 import useNota from '../hooks/nota/useNota.js';
 import '../styles/notaPrint.css';
-
 const Nota = () => {
   const {
     customerSearch,
@@ -44,6 +43,7 @@ const Nota = () => {
                     pageTotal={pageTotals[pageIndex] || 0}
                     notaNumber={notaNumber}
                     customerName={customerSearch.trim()}
+                    selectedCustomer={selectedCustomer}
                     date={todayLabel}
                     getItemProduct={getItemProduct}
                     getItemUnitPrice={getItemUnitPrice}
@@ -86,6 +86,7 @@ const Nota = () => {
                       notaNumber={notaNumber}
                       date={todayLabel}
                       customerName={customerSearch.trim()}
+                      selectedCustomer={selectedCustomer}
                       customerAutocompleteProps={{
                         value: customerSearch,
                         onChange: setCustomerSearch,
@@ -95,18 +96,18 @@ const Nota = () => {
                         placeholder: 'Ketik nama customer...',
                       }}
                     />
+                    <NotaItemsTable
+                      items={items}
+                      barangs={barangs}
+                      getItemProduct={getItemProduct}
+                      getItemUnitPrice={getItemUnitPrice}
+                      onAddItem={handleAddItem}
+                      onUpdateItem={updateItem}
+                      onRemoveItem={handleRemoveItem}
+                      totalHarga={totalHarga}
+                      selectedCustomer={selectedCustomer}
+                    />
                   </div>
-                  <NotaItemsTable
-                    items={items}
-                    barangs={barangs}
-                    getItemProduct={getItemProduct}
-                    getItemUnitPrice={getItemUnitPrice}
-                    onAddItem={handleAddItem}
-                    onUpdateItem={updateItem}
-                    onRemoveItem={handleRemoveItem}
-                    totalHarga={totalHarga}
-                    selectedCustomer={selectedCustomer}
-                  />
                 </div>
               </div>
             </div>

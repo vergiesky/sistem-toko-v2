@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddBarangPopup from '../components/barang/AddBarangPopup.jsx';
 import Pagination from '../components/Pagination.jsx';
 import BarangTable from '../components/barang/BarangTable.jsx';
@@ -8,8 +8,6 @@ import useBarangData from '../hooks/barang/useBarangData.js';
 import useBarangFilters from '../hooks/barang/useBarangFilters.js';
 import useBarangForm from '../hooks/barang/useBarangForm.js';
 import useBarangImport from '../hooks/barang/useBarangImport.js';
-import filterBarangs from '../lib/barang/filterBarangs.js';
-import { paginateItems } from '../lib/paginate.js';
 
 const PAGE_SIZE = 10;
 
@@ -18,6 +16,7 @@ const Barang = () => {
     barangs,
     customers,
     barangHargaCustomers,
+    pagination,
     isLoading,
     fetchBarangs,
     fetchBarangHargaCustomers,
@@ -100,29 +99,36 @@ const Barang = () => {
     resetImportState();
   };
 
-  const filteredBarangs = useMemo(
-    () =>
-      filterBarangs({
-        barangs,
-        query,
-        stokFilter,
-        hargaMin,
-        hargaMax,
-      }),
-    [barangs, query, stokFilter, hargaMin, hargaMax],
-  );
-
-  const totalItems = filteredBarangs.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
-  const pagedBarangs = useMemo(
-    () => paginateItems(filteredBarangs, safePage, PAGE_SIZE).pagedItems,
-    [filteredBarangs, safePage],
-  );
+  const totalItems = pagination.total;
+  const safePage = pagination.pages
+    ? Math.min(page, pagination.pages)
+    : page;
 
   useEffect(() => {
-    fetchBarangs();
-  }, [fetchBarangs]);
+    const params = {
+      page,
+      per_page: PAGE_SIZE,
+    };
+    if (query.trim() !== '') {
+      params.query = query.trim();
+    }
+    if (stokFilter !== 'all') {
+      params.stok_filter = stokFilter;
+    }
+    if (hargaMin !== '') {
+      params.harga_min = hargaMin;
+    }
+    if (hargaMax !== '') {
+      params.harga_max = hargaMax;
+    }
+    fetchBarangs(params);
+  }, [fetchBarangs, page, query, stokFilter, hargaMin, hargaMax]);
+
+  useEffect(() => {
+    if (pagination.pages && page > pagination.pages) {
+      setPage(pagination.pages);
+    }
+  }, [page, pagination.pages]);
 
   const handleQueryChange = (event) => {
     setPage(1);
@@ -194,7 +200,7 @@ const Barang = () => {
             <BarangTable
               isLoading={isLoading}
               filteredCount={totalItems}
-              pagedBarangs={pagedBarangs}
+              pagedBarangs={barangs}
               page={safePage}
               pageSize={PAGE_SIZE}
               customerFilterId={customerFilterId}

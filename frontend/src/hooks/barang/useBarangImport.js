@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createBarang } from '../../api/apiBarang.js';
+import { createBarang, getBarangs } from '../../api/apiBarang.js';
 import { createBarangHargaCustomer } from '../../api/apiBarangHargaCustomer.js';
 import {
   parseHargaKhususRows,
@@ -78,7 +78,9 @@ const useBarangImport = ({
       }, {});
 
       const barangByName = new Map();
-      barangs.forEach((barang) => {
+      const allBarangsResponse = await getBarangs({ per_page: 0 });
+      const allBarangs = allBarangsResponse?.data ?? barangs;
+      allBarangs.forEach((barang) => {
         const key = String(barang.nama_barang || '').trim().toLowerCase();
         if (key) barangByName.set(key, barang);
       });

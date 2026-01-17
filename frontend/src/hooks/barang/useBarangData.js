@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { deleteBarang, getBarangs } from '../../api/apiBarang.js';
 import { getCustomers } from '../../api/apiCustomer.js';
 import { getBarangHargaCustomers } from '../../api/apiBarangHargaCustomer.js';
@@ -9,32 +9,58 @@ const useBarangData = () => {
   const [barangs, setBarangs] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [barangHargaCustomers, setBarangHargaCustomers] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: 10,
+    total: 0,
+    pages: 1,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [dataError, setDataError] = useState('');
+  const lastParamsRef = useRef(null);
+  const requestIdRef = useRef(0);
 
-  const fetchBarangs = useCallback(async () => {
+  const fetchBarangs = useCallback(async (params = {}) => {
+    const hasParams = Object.keys(params).length > 0;
+    const mergedParams = hasParams ? params : (lastParamsRef.current || {});
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
     setIsLoading(true);
     setDataError('');
+    lastParamsRef.current = mergedParams;
     try {
-      const response = await getBarangs();
-      const items = response.data ?? [];
-      const sorted = [...items].sort(
-        (a, b) => Number(b.id_barang) - Number(a.id_barang),
-      );
-      setBarangs(sorted);
+      const response = await getBarangs(mergedParams);
+      if (requestIdRef.current !== requestId) {
+        return;
+      }
+      const items = response?.data ?? [];
+      const meta = response?.meta ?? {};
+      setBarangs(items);
+      setPagination({
+        page: meta.page ?? mergedParams.page ?? 1,
+        perPage: meta.per_page ?? mergedParams.per_page ?? 10,
+        total: meta.total ?? items.length,
+        pages: meta.pages ?? 1,
+      });
     } catch (error) {
+      if (requestIdRef.current !== requestId) {
+        return;
+      }
       setDataError(
         error?.response?.data?.message || 'Gagal mengambil data barang.',
       );
     } finally {
+      if (requestIdRef.current !== requestId) {
+        return;
+      }
       setIsLoading(false);
     }
   }, []);
 
   const fetchCustomers = useCallback(async () => {
     try {
-      const response = await getCustomers();
+      const response = await getCustomers({ per_page: 0 });
       setCustomers(response.data ?? []);
     } catch {
       setCustomers([]);
@@ -63,7 +89,7 @@ const useBarangData = () => {
     setDataError('');
     try {
       await deleteBarang(barang.id_barang);
-      fetchBarangs();
+      fetchBarangs(lastParamsRef.current || {});
       toastSuccess('Barang berhasil dihapus.');
     } catch (error) {
       const message =
@@ -76,7 +102,6 @@ const useBarangData = () => {
   }, [fetchBarangs]);
 
   useEffect(() => {
-    fetchBarangs();
     fetchCustomers();
     fetchBarangHargaCustomers();
   }, [fetchBarangs, fetchCustomers, fetchBarangHargaCustomers]);
@@ -86,6 +111,7 @@ const useBarangData = () => {
     barangs,
     customers,
     barangHargaCustomers,
+    pagination,
     isLoading,
     isDeleting,
     dataError,

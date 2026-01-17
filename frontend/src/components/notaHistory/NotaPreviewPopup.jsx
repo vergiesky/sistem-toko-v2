@@ -1,6 +1,5 @@
 import NotaPreviewPage from './NotaPreviewPage.jsx';
 import splitIntoPages from '../../lib/splitIntoPages.js';
-import '../../styles/notaPreview.css';
 
 const NotaPreviewPopup = ({
   nota,
@@ -17,6 +16,11 @@ const NotaPreviewPopup = ({
   const details = nota.detail_notas || nota.detailNotas || [];
   const detailPages = splitIntoPages(details, 15);
   const customerName = nota.customers?.nama_customer || nota.nama_customer || '';
+  const selectedCustomer =
+    nota.customers ||
+    (nota.nama_perusahaan || nota.alamat
+      ? { nama_perusahaan: nota.nama_perusahaan, alamat: nota.alamat }
+      : null);
   const notaNumber = String(nota.nomor_nota || '').padStart(3, '0');
 
   return (
@@ -82,6 +86,7 @@ const NotaPreviewPopup = ({
                   notaNumber={notaNumber}
                   date={formatDate(nota.tanggal)}
                   customerName={customerName}
+                  selectedCustomer={selectedCustomer}
                   pageTotal={pageTotal}
                   formatRupiah={formatRupiah}
                 />

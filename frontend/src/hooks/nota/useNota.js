@@ -7,14 +7,48 @@ import useNotaItems from './useNotaItems.js';
 import useNotaPricing from './useNotaPricing.js';
 import useNotaPrint from './useNotaPrint.js';
 
+const NOTA_DRAFT_KEY = 'nota:draft:v1';
+
+const serializeCustomer = (customer) => {
+  if (!customer) return null;
+  return {
+    id_customer: customer.id_customer ?? null,
+    nama_customer: customer.nama_customer ?? '',
+    nama_perusahaan: customer.nama_perusahaan ?? '',
+    alamat: customer.alamat ?? '',
+  };
+};
+
+const readNotaDraft = () => {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(NOTA_DRAFT_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
 const useNota = () => {
+  const draft = readNotaDraft();
   const [customers, setCustomers] = useState([]);
   const [barangs, setBarangs] = useState([]);
   const [barangHargaCustomers, setBarangHargaCustomers] = useState([]);
-  const [customerSearch, setCustomerSearch] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customerSearch, setCustomerSearch] = useState(
+    draft.customerSearch ?? '',
+  );
+  const [selectedCustomer, setSelectedCustomer] = useState(
+    draft.selectedCustomer ?? null,
+  );
+  const [draftCustomerId, setDraftCustomerId] = useState(
+    draft.selectedCustomerId ?? draft.selectedCustomer?.id_customer ?? null,
+  );
   const [notaNumber, setNotaNumber] = useState(1);
-  const { items, addItem, removeItem, updateItem } = useNotaItems();
+  const { items, addItem, removeItem, setItems, updateItem } = useNotaItems(
+    Array.isArray(draft.items) ? draft.items : [],
+  );
 
   useEffect(() => {
     const fetchNextNotaNumber = async () => {
@@ -27,7 +61,7 @@ const useNota = () => {
     };
     const fetchCustomers = async () => {
       try {
-        const response = await getCustomers();
+        const response = await getCustomers({ per_page: 0 });
         setCustomers(response.data ?? []);
       } catch {
         setCustomers([]);
@@ -35,7 +69,7 @@ const useNota = () => {
     };
     const fetchBarangs = async () => {
       try {
-        const response = await getBarangs();
+        const response = await getBarangs({ per_page: 0 });
         setBarangs(response.data ?? []);
       } catch {
         setBarangs([]);
@@ -55,6 +89,28 @@ const useNota = () => {
     fetchNextNotaNumber();
   }, []);
 
+  useEffect(() => {
+    if (!draftCustomerId) return;
+    const match = customers.find(
+      (customer) => String(customer.id_customer) === String(draftCustomerId),
+    );
+    if (match) {
+      setSelectedCustomer(match);
+    }
+  }, [customers, draftCustomerId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const nextDraft = {
+      customerSearch,
+      selectedCustomerId: selectedCustomer?.id_customer ?? null,
+      selectedCustomer: serializeCustomer(selectedCustomer),
+      items,
+    };
+    window.localStorage.setItem(NOTA_DRAFT_KEY, JSON.stringify(nextDraft));
+    setDraftCustomerId(selectedCustomer?.id_customer ?? null);
+  }, [customerSearch, items, selectedCustomer]);
+
   const handleAddItem = addItem;
   const handleRemoveItem = removeItem;
 
@@ -66,6 +122,16 @@ const useNota = () => {
       selectedCustomer,
     });
 
+  const clearDraft = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(NOTA_DRAFT_KEY);
+    }
+    setCustomerSearch('');
+    setSelectedCustomer(null);
+    setDraftCustomerId(null);
+    setItems([]);
+  };
+
   const { handlePrint } = useNotaPrint({
     items,
     getItemUnitPrice,
@@ -74,6 +140,7 @@ const useNota = () => {
     notaNumber,
     totalHarga,
     setNotaNumber,
+    onAfterPrintSuccess: clearDraft,
   });
 
   return {

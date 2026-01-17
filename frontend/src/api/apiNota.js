@@ -1,7 +1,7 @@
 import useAxios from './index.jsx';
 
-export async function getNotas() {
-  const res = await useAxios.get('/nota');
+export async function getNotas(params) {
+  const res = await useAxios.get('/nota', { params });
   return res.data;
 }
 

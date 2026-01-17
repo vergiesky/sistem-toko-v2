@@ -5,6 +5,7 @@ const NotaPreviewPage = ({
   notaNumber,
   date,
   customerName,
+  selectedCustomer,
   pageTotal,
   formatRupiah,
 }) => {
@@ -23,6 +24,7 @@ const NotaPreviewPage = ({
         notaNumber={notaNumber}
         date={date}
         customerName={customerName}
+        selectedCustomer={selectedCustomer}
         rows={rows}
         pageTotal={pageTotal}
         blankRows={blankRows}

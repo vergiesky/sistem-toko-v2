@@ -10,6 +10,7 @@ const useNotaPrint = ({
   notaNumber,
   totalHarga,
   setNotaNumber,
+  onAfterPrintSuccess,
 }) => {
   const handlePrint = async () => {
     const invalidItem = items.find(
@@ -102,6 +103,7 @@ const useNotaPrint = ({
       setNotaNumber((prev) => prev + 1);
     }
     window.print();
+    onAfterPrintSuccess?.();
   };
 
   return { handlePrint };
